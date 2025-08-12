@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Liberty Chat Assistant</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="header">
+    <img src="/static/liberty-logo.png" alt="Liberty Logo" />
+    <h1>Liberty Work Order Assistant</h1>
+  </div>
+
+  <div class="container">
+    <!-- Sidebar with multiple work order cards -->
+    <div class="sidebar">
+      <h2>Work Orders</h2>
+
+      <div class="wo-card">
+        <h3>WO123456</h3>
+        <p><strong>Status:</strong> In Progress</p>
+        <p><strong>Meter ID:</strong> MTR98765</p>
+        <p><strong>Crew:</strong> Team A</p>
+      </div>
+
+      <div class="wo-card">
+        <h3>WO789012</h3>
+        <p><strong>Status:</strong> Completed</p>
+        <p><strong>Meter ID:</strong> MTR65432</p>
+        <p><strong>Crew:</strong> Team B</p>
+      </div>
+
+      <div class="wo-card">
+        <h3>WO345678</h3>
+        <p><strong>Status:</strong> Pending</p>
+        <p><strong>Meter ID:</strong> MTR32109</p>
+        <p><strong>Crew:</strong> Team C</p>
+      </div>
+    </div>
+
+    <!-- Chat interface -->
+    <div class="chatbox-section">
+      <div id="chatbox"></div>
+      <div id="input-area">
+        <input type="text" id="user-input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const chatbox = document.getElementById("chatbox");
+      const message = input.value.trim();
+      if (!message) return;
+
+      chatbox.innerHTML += `<div class="message user"><strong>You:</strong> ${message}</div>`;
+      input.value = "";
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      const rendered = marked.parse(data.response);
+      chatbox.innerHTML += `<div class="message bot"><strong>Agent:</strong><br>${rendered}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
